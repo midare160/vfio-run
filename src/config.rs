@@ -3,39 +3,19 @@ use crate::context::{ContextBuilder, IntelHdaType, Vga};
 
 // Look at the readme for setup instructions. The builder functions also have doc comments.
 
-pub fn get_builder(window: bool, profile: &Profile) -> ContextBuilder {
-	// These options always apply
-	let mut builder = ContextBuilder::default()
-		.cpu("host,topoext,kvm=off,hv_frequencies,hv_time,hv_relaxed,hv_vapic,hv_spinlocks=0x1fff,hv_vendor_id=thisisnotavm")
-		.ovmf_bios("/usr/share/edk2/x64/OVMF.fd")
-		.smbios_auto()
-		.virtio_disk("/dev/sdd")
-		.pipewire("/run/user/1000")
-		.intel_hda(IntelHdaType::Output)
+pub fn get_builder(_window: bool, _profile: &Profile) -> ContextBuilder {
+	ContextBuilder::default()
+		.smp("sockets=1,cores=4,threads=2")
+		.ram("16G")
+		.virtio_disk("/dev/disk/by-id/nvme-WD_BLACK_SN770M_1TB_24102W800941") // the block device you installed Windows on
+		.ovmf_bios("/usr/share/OVMF", "/usr/share/qemu/OVMF.fd")
+		.window()
 		.vfio_user_networking()
-		.looking_glass(1000, 1000)
+		.pipewire("/run/user/1000") // your UID
+		.intel_hda(IntelHdaType::Output)
+		.vga(Vga::Standard)
+		.usb_tablet()
 		.spice_kvm()
-		.spice_agent();
-
-	// This only applies when the --window flag is passed
-	if window {
-		builder = builder.window().vga(Vga::Qxl).usb_tablet();
-	}
-
-	// These options only apply when the VM is started in the given profile
-	match profile {
-		Profile::Slim => builder
-			.ram("8G")
-			.smp("sockets=1,cores=2,threads=2")
-			.cpu_affinity("0-1,8-9")
-			.vga(Vga::Qxl),
-
-		Profile::Full => builder
-			.ram("24G")
-			.smp("sockets=1,cores=6,threads=2")
-			.cpu_affinity("0-5,8-13")
-			.pci_device("0000:01:00.0")
-			.pci_device("0000:01:00.1")
-			.unloaded_drivers(vec!["nvidia_drm", "nvidia_uvm", "nvidia_modeset", "nvidia"]),
-	}
+		.spice_agent()
+	//.usb_device(0x046d, 0xc547)
 }

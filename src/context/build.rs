@@ -32,13 +32,11 @@ pub fn add_system(args: &mut ArgWriter, cpu: Option<String>, smp: Option<String>
 pub fn add_bios(args: &mut ArgWriter, bios: BiosType) {
 	match bios {
 		BiosType::Default => (),
-		BiosType::Ovmf(path) => {
-			let firmware_directory = path.parent().expect("bios file should be in a directory");
-
+		BiosType::Ovmf { dir, bios } => {
 			args.add("-L")
-				.add(firmware_directory.to_string_lossy())
+				.add(dir.to_string_lossy())
 				.add("-bios")
-				.add(path.to_string_lossy());
+				.add(bios.to_string_lossy());
 		}
 	}
 }
@@ -121,7 +119,7 @@ pub fn add_pci(args: &mut ArgWriter, devices: &[String]) {
 		args.add("-device").add(format!("vfio-pci,host={address}"));
 	}
 }
-
+// -device vfio-pci,host={address}
 pub fn add_disks(args: &mut ArgWriter, disks: Vec<Disk>) {
 	for disk in &disks {
 		_ = match disk {

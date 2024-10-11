@@ -44,7 +44,7 @@ pub enum Window {
 #[derive(Debug)]
 pub enum BiosType {
 	Default,
-	Ovmf(PathBuf),
+	Ovmf { dir: PathBuf, bios: PathBuf },
 }
 
 #[derive(Debug)]

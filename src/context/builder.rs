@@ -91,8 +91,11 @@ impl ContextBuilder {
 
 	/// Boot in UEFI mode. Argument is the path to OVMF.fd.  
 	/// On Arch, install `edk2-ovmf`.
-	pub fn ovmf_bios(mut self, path: impl Into<PathBuf>) -> Self {
-		self.bios_type = BiosType::Ovmf(path.into());
+	pub fn ovmf_bios(mut self, dir: impl Into<PathBuf>, bios: impl Into<PathBuf>) -> Self {
+		self.bios_type = BiosType::Ovmf {
+			dir: dir.into(),
+			bios: bios.into(),
+		};
 		self
 	}
 
